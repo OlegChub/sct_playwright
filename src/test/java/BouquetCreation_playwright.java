@@ -5,6 +5,7 @@ import com.microsoft.playwright.Page;
 import entities.Item;
 import helper.Helper;
 import lombok.SneakyThrows;
+import org.junit.jupiter.api.AfterEach;
 import org.junit.jupiter.api.DisplayName;
 import org.junit.jupiter.api.Test;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -38,6 +39,12 @@ public class BouquetCreation_playwright {
 
     @Autowired
     private PlaywrightBouquetPage bouquetPage;
+
+    @AfterEach
+    public void shutDown() {
+        if (page != null) page.close();
+        if (browser != null) browser.close();
+    }
 
     @Test
     @SneakyThrows
