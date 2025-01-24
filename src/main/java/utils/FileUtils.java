@@ -36,25 +36,36 @@ public class FileUtils {
     public List<Item> readExcelAndMatchCompositionsWithStemsCSV(String excelFilePath) {
         List<Item> items = new ArrayList<>();
         Item currentItem = null;
-        String filePath = "..\\sct\\src\\main\\resources\\files\\stems.csv"; // Path to CSV file with stems
+//        String filePath = "..\\sct\\src\\main\\resources\\files\\stems.csv"; // Path to CSV file with stems
+        String filePath = "C:\\Users\\Selecty\\Downloads\\sct\\stemsLocal.csv"; // Path to CSV file with stems
         List<String> stems = FileUtils.readCsv(filePath);
 
         FileInputStream fis = new FileInputStream(new File(excelFilePath));
         Workbook workbook = new XSSFWorkbook(fis);
         Sheet sheet = workbook.getSheetAt(0); // Get the first sheet
         for (Row row : sheet) {
+            if (row.getRowNum() == 0) {
+                continue; // skip first row with column names
+            }
             Cell elementItemName = row.getCell(1);
             Cell elementItemDescription = row.getCell(2);
             if (elementItemName != null && elementItemName.getCellType() != CellType.BLANK) {
                 String name = elementItemName.getStringCellValue().trim();
                 String description = elementItemDescription.getStringCellValue().trim();
-//                var weight = elementItemWeight.getNumericCellValue();
-//                var height = (int) elementItemHeight.getNumericCellValue();
-//                var width = (int) elementItemWidth.getNumericCellValue();
+                var height = (int) row.getCell(6).getNumericCellValue();
+                var width = (int) row.getCell(7).getNumericCellValue();
+                var length = (int) row.getCell(8).getNumericCellValue();
+                var weight = row.getCell(9).getNumericCellValue();
+                var assemblyTime = (int) row.getCell(10).getNumericCellValue();
+
                 currentItem = new Item(name, description);
-//                currentItem.setWeight(weight);
-//                currentItem.setHeight(height);
-//                currentItem.setWidth(width);
+                currentItem.setHeight(height);
+                currentItem.setWidth(width);
+                currentItem.setLength(length);
+                currentItem.setWeight(weight);
+                currentItem.setAssemblyTime(assemblyTime);
+
+                System.out.printf("%dх%dх%d см | %.1f кг | %d мин\n", height, width, length, weight, assemblyTime);
                 items.add(currentItem);
             }
             Cell elementCodeCell = row.getCell(3);
@@ -71,36 +82,27 @@ public class FileUtils {
                 Element element = new Element(elementCode, matchedElementName, quantityAsString);
                 currentItem.addElement(element);
             }
-            Cell elementItemWeight = row.getCell(6);
-            if (elementItemWeight != null && elementItemWeight.getCellType() != CellType.BLANK) {
-                Cell elementItemHeight = row.getCell(7);
-                Cell elementItemWidth = row.getCell(8);
-                var weight = elementItemWeight.getStringCellValue();
-                var height = elementItemHeight.getStringCellValue();
-                var width = elementItemWidth.getStringCellValue();
-                currentItem.setWeight(weight);
-                currentItem.setHeight(height);
-                currentItem.setWidth(width);
-                System.out.printf("%s кг | %s %s см\n", weight, height, width);
-            }
         }
 
         return items;
     }
 
     @SneakyThrows
-    public Map<String, Integer> readExcelFileWithTwoColumns(String excelFilePath) {
-        Map<String, Integer> items = new HashMap<>();
+//    public Map<String, Integer> readExcelFileWithTwoColumns(String excelFilePath) {
+    public Map<String, String> readExcelFileWithTwoColumns(int startCell, String excelFilePath) {
+//        Map<String, Integer> items = new HashMap<>();
+        Map<String, String> items = new HashMap<>();
 
         FileInputStream fis = new FileInputStream(new File(excelFilePath));
         Workbook workbook = new XSSFWorkbook(fis);
         Sheet sheet = workbook.getSheetAt(0); // Get the first sheet
         for (Row row : sheet) {
-            Cell elementItemName = row.getCell(0);
-            Cell elementItemQuantity = row.getCell(1);
+            Cell elementItemName = row.getCell(startCell);
+            Cell elementItemQuantity = row.getCell(startCell+1);
             if (elementItemName != null && elementItemName.getCellType() != CellType.BLANK) {
                 String name = elementItemName.getStringCellValue().trim();
-                int quantity = (int) elementItemQuantity.getNumericCellValue();
+//                int quantity = (int) elementItemQuantity.getNumericCellValue();
+                var quantity = elementItemQuantity.getStringCellValue().trim();
                 items.put(name, quantity);
             }
         }

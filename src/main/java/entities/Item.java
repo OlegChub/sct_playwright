@@ -4,6 +4,7 @@ import lombok.*;
 
 import java.util.ArrayList;
 import java.util.List;
+import java.util.Map;
 
 @Getter
 @Setter
@@ -12,10 +13,11 @@ public class Item {
     private String itemName;
     private String itemDescription;
     private List<Element> elements;
-    private List<String> dimensions;
-    private String weight;
-    private String height;
-    private String width;
+    private int height;
+    private int width;
+    private int length;
+    private double weight;
+    private int assemblyTime;
 
     public Item(String itemName, String itemDescription) {
         this.itemName = itemName;
@@ -26,6 +28,5 @@ public class Item {
     public void addElement(Element element) {
         elements.add(element);
     }
-
 }
 

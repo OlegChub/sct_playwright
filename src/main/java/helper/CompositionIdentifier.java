@@ -84,6 +84,8 @@ public class CompositionIdentifier {
             newCompositionName = "нобилис";
         } else if (newCompositionName.contains("шишка сосновая")) {
             newCompositionName = "шишка сосновая";
+        } else if (newCompositionName.contains("топпер")) {
+            newCompositionName = "топпер";
         } else if (newCompositionName.contains(" нг")) {
             if (newCompositionName.contains("игрушка")) {
                 newCompositionName = newCompositionName.replace(" нг", " новогодняя");

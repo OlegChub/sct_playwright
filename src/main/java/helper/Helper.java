@@ -3,7 +3,9 @@ package helper;
 import lombok.experimental.UtilityClass;
 
 import java.util.ArrayList;
+import java.util.Arrays;
 import java.util.List;
+import java.util.Map;
 
 import static enums.BasicBouquetTypes.*;
 
@@ -26,6 +28,30 @@ public class Helper {
         } else {
             return BASIC.getType();
         }
+    }
+
+    public void printMapAsMapOf(Map<String, String> map) {
+        System.out.println("Map<String, String> mapWithNamesAndPrices = new HashMap<>();");
+        for (Map.Entry<String, String> mapEl : map.entrySet()) {
+            String key = formatQuotes(mapEl.getKey());
+            String value = mapEl.getValue();
+            System.out.printf("map.put(\"%s\", \"%s\");\n", key, value);
+        }
+    }
+
+    public void printListAsArraysAsList(List<String> list) {
+        System.out.println("List<String> namesList = Arrays.asList(");
+        for (var name : list) {
+            System.out.printf("\"%s\",\n", formatQuotes(name));
+        }
+        System.out.println(");");
+    }
+
+    public String formatQuotes(String s) {
+        if (s.contains("\"")) {
+            return s.replace("\"", "\\\"");
+        }
+        return s;
     }
 
 }

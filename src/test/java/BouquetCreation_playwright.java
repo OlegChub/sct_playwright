@@ -10,8 +10,8 @@ import org.junit.jupiter.api.DisplayName;
 import org.junit.jupiter.api.Test;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.test.context.SpringBootTest;
+import utils.Exporter;
 import utils.FileUtils;
-import utils.ListExporter;
 import web.pages.PlaywrightAdminLoginPage;
 import web.pages.PlaywrightAdministrationPage;
 import web.pages.PlaywrightBouquetPage;
@@ -20,7 +20,6 @@ import web.pages.PlaywrightSearchElementPage;
 import java.nio.file.Paths;
 
 import static java.lang.String.format;
-import static java.lang.Thread.sleep;
 
 @SpringBootTest(classes = {SctApplication.class})
 public class BouquetCreation_playwright {
@@ -47,10 +46,9 @@ public class BouquetCreation_playwright {
     }
 
     @Test
-    @SneakyThrows
     @DisplayName("Add new bouquets using composition names")
     public void addNewBouquetUsingCompositionNames_Playwright() {
-        String imagesFolderPath = "C:\\Users\\Selecty\\Downloads\\sct\\Декабрь 02";
+        String imagesFolderPath = "C:\\Users\\Selecty\\Downloads\\sct\\10 января";
         String compositionFilePath = "C:\\Users\\Selecty\\Downloads\\sct\\bouquets.xlsx";
         var itemsList = FileUtils.readExcelAndMatchCompositionsWithStemsCSV(compositionFilePath);
         loginPage.login();
@@ -71,6 +69,8 @@ public class BouquetCreation_playwright {
             administrationPage.copyElementWithName(basicBouquetName);
             // Adding name and sorting
             fillOutBouquetNameAndSorting(itemsList.get(i));
+            // Set bouquet dimensions
+            setBouquetDimensions(itemsList.get(i));
             Locator altInputs = bouquetPage.getAlternativeCompositionItemInputs();
             int elementsQuantity = itemsList.get(i).getElements().size();
             // Adding composition
@@ -83,7 +83,7 @@ public class BouquetCreation_playwright {
                 counter++;
             }
             uploadAdditionalImages(imagesFolderPath, folderWithImagesStartIndex);
-            sleep(2000);
+            page.waitForTimeout(2000);
             bouquetPage
                     .clickOnInDetailTab()
                     .addDetailedDescription(itemsList.get(i).getItemDescription());
@@ -92,8 +92,10 @@ public class BouquetCreation_playwright {
                     .clickOnTradeCatalogTab()
                     .clickOnParametersTab()
                     .setDefaultGoodsQuantity();
-            sleep(3000);
+            page.waitForTimeout(3000);
             bouquetPage.clickOnSaveBtn();
+//            page.onceDialog(Dialog::dismiss);
+            waitTillLoadingIsFinished();
             folderWithImagesStartIndex++;
 //            sleep(3000);
             System.out.printf("%s has been saved%n", itemName);
@@ -106,7 +108,9 @@ public class BouquetCreation_playwright {
     public void checkCompositionMatching() {
         String compositionFilePath = "C:\\Users\\Selecty\\Downloads\\sct\\bouquets.xlsx";
         var itemsList = FileUtils.readExcelAndMatchCompositionsWithStemsCSV(compositionFilePath);
-        ListExporter.listToCSV(itemsList);
+        itemsList.forEach(System.out::println);
+//        Exporter.itemListToCSV(itemsList);
+        Exporter.listToCSV(itemsList, "components");
     }
 
     private void addNewCompositionFieldUsingName(Item item, int elementIndex) {
@@ -135,6 +139,31 @@ public class BouquetCreation_playwright {
         altInputs.nth(elementIndex).fill(getElementName(item, elementIndex));
     }
 
+    private void setBouquetDimensions(Item item) {
+//        Height	Width	Length	Weight	Assembly time
+        int height = item.getHeight();
+        int width = item.getWidth();
+        double weight = item.getWeight();
+        int length = item.getLength();
+        int assemblyTime = item.getAssemblyTime();
+
+        if (height > 0) {
+            bouquetPage.setBouquetHeight(String.valueOf(height));
+        }
+        if (width > 0) {
+            bouquetPage.setBouquetWidth(String.valueOf(width));
+        }
+        if (length > 0) {
+            bouquetPage.setBouquetLength(String.valueOf(length));
+        }
+        if (weight > 0) {
+            bouquetPage.setBouquetWeight(String.valueOf(weight));
+        }
+        if (assemblyTime > 0) {
+            bouquetPage.setBouquetAssemblyTime(String.valueOf(assemblyTime));
+        }
+    }
+
     private void uploadAdditionalImages(String pathToFolder, int folderNumber) {
         for (int i = 4; i > 1; i--) {
             String imagePath = format("%s\\%d\\4 (%s).jpg", pathToFolder, folderNumber, i);
@@ -159,5 +188,13 @@ public class BouquetCreation_playwright {
         String name = item.getElements().get(elementIndex).getName();
         System.out.printf("Using element: %s%n", name);
         return name;
+    }
+
+    private void waitTillLoadingIsFinished() {
+        var isSavingInProgress = administrationPage.isLoaderDisplayed();
+        while (isSavingInProgress) {
+            page.waitForTimeout(500);
+            isSavingInProgress = administrationPage.isLoaderDisplayed();
+        }
     }
 }

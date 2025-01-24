@@ -2,11 +2,14 @@ package web.pages;
 
 import com.microsoft.playwright.Locator;
 import com.microsoft.playwright.Page;
+import lombok.SneakyThrows;
 import org.springframework.stereotype.Component;
 
 import java.util.List;
 
+import static com.microsoft.playwright.options.LoadState.DOMCONTENTLOADED;
 import static java.lang.String.format;
+import static java.lang.Thread.sleep;
 
 
 @Component
@@ -21,6 +24,8 @@ public class PlaywrightAdministrationPage {
     private static final String URL = "https://www.souzcvettorg.ru/bitrix/admin/iblock_element_admin.php?IBLOCK_ID=6&type=collection&lang=ru&find_section_section=-1#authorize";
     private static final String NEW_COLLECTION_URL = "https://www.souzcvettorg.ru/bitrix/admin/iblock_element_admin.php?IBLOCK_ID=6&type=collection&lang=ru&find_section_section=3806&SECTION_ID=3806";
     private static final String CATALOG_URL = "https://www.souzcvettorg.ru/bitrix/admin/iblock_section_admin.php?IBLOCK_ID=6&type=collection&lang=ru&find_section_section=531&SECTION_ID=531&apply_filter=Y";
+    private static final String bouquetAssemblyTimeField = "(//span[@class='main-grid-cell-content']/a[text()='%s']/ancestor::tr)[2]//input[contains(@name,'[PROPERTY_232]')]";
+    private static final String errorWhileSavingPopUp = "//div[contains(@id,'popup-window-content')]//div[contains(text(),'Ошибка сохранения записи')]";
 
     public PlaywrightAdministrationPage(Page page) {
         this.page = page;
@@ -78,9 +83,17 @@ public class PlaywrightAdministrationPage {
         return this;
     }
 
+    @SneakyThrows
     public PlaywrightAdministrationPage clickSearchBtn() {
         page.locator("//span[@class='main-ui-item-icon main-ui-search']").click();
+        this.page.waitForLoadState();
         return this;
+    }
+
+    public String getSearchResultsQuantity() {
+        String totalItemsFound = "//span[contains(text(),'Всего:')]/following-sibling::span[contains(@class,'content-text')]";
+        System.out.println("Items found: " + totalItemsFound);
+        return page.textContent(totalItemsFound);
     }
 
     public PlaywrightAdministrationPage assertSearchResultDisplayed(String name) {
@@ -174,13 +187,18 @@ public class PlaywrightAdministrationPage {
     }
 
     public PlaywrightAdministrationPage checkAll() {
-        page.locator(flowersH1).scrollIntoViewIfNeeded();
-        page.locator("//input[@type='checkbox' and contains(@title, 'Отметить все')]").click();
+//        page.locator(flowersH1).scrollIntoViewIfNeeded();
+        page.locator("//input[@type='checkbox' and contains(@title, 'Отметить все')]").first().click();
         return this;
     }
 
     public PlaywrightAdministrationPage checkItemToEdit() {
         page.locator("//input[contains(@id,'checkbox') and contains(@title,'Отметить для редактирования')]").click();
+        return this;
+    }
+
+    public PlaywrightAdministrationPage checkItemWithNameToEdit(String itemName) {
+        page.locator(format("(//span[@class='main-grid-cell-content']/a[text()='%s']/ancestor::tr)[2]//input[contains(@id,'checkbox')]", itemName)).click();
         return this;
     }
 
@@ -199,8 +217,12 @@ public class PlaywrightAdministrationPage {
         return this;
     }
 
+    @SneakyThrows
     public PlaywrightAdministrationPage clickOnSaveButton() {
         page.locator("#grid_save_button_control").click();
+        this.page.waitForLoadState();
+        System.out.println("Saving changes...");
+        this.page.waitForLoadState();
         return this;
     }
 
@@ -211,7 +233,13 @@ public class PlaywrightAdministrationPage {
 
     public PlaywrightAdministrationPage editCheckedItems() {
         page.locator("#grid_edit_button_control").click();
+        System.out.println("Editing mode ON");
         return this;
+    }
+
+    public boolean isEditMenuBarDisplayed() {
+        System.out.println("Checking Edit button is displayed");
+        return page.locator("main-grid-control-panel-row").isVisible();
     }
 
     public PlaywrightAdministrationPage clickOnEditFirstItemBurgerMenu() {
@@ -235,9 +263,47 @@ public class PlaywrightAdministrationPage {
         return this;
     }
 
+    public PlaywrightAdministrationPage setBouquetAssemblyTime(String bouquetName, String data) {
+        page.locator(format(bouquetAssemblyTimeField, bouquetName)).clear();
+        page.locator(format(bouquetAssemblyTimeField, bouquetName)).fill(data);
+        return this;
+    }
+
+    public PlaywrightAdministrationPage setBouquetAssemblyTime(String data) {
+        page.waitForLoadState(DOMCONTENTLOADED);
+        String timeField = "//input[contains(@name,'[PROPERTY_232]')]";
+        page.locator(timeField).first().clear();
+        page.locator(timeField).first().fill(data);
+        System.out.println("Setting assembly time...");
+        return this;
+    }
+
+    public String getBouquetPrice() {
+        page.waitForLoadState(DOMCONTENTLOADED);
+        System.out.println("Getting price ...");
+        return page.inputValue("//input[contains(@name,'CATALOG_PRICE') and contains(@name,'[1]') and @type='number']");
+    }
+
     public PlaywrightAdministrationPage deactivateFirstItem() {
         page.locator((flowersH1)).scrollIntoViewIfNeeded();
         return selectPopUpMenuItem("Деактивировать");
+    }
+
+    public boolean isErrorWhileSavingPopupDisplayed() {
+        return page.locator(errorWhileSavingPopUp).first().isVisible();
+    }
+
+    public boolean isNothingFoundDisplayed() {
+        return page.locator("//div[text()='Ничего не найдено']").isVisible();
+    }
+
+    public boolean isLoaderDisplayed() {
+        return page.locator("main-ui-loader main-ui-show").isVisible();
+    }
+
+    public PlaywrightAdministrationPage closeErrorWhileSavingPopup() {
+        page.click("//span[text()='Закрыть']");
+        return this;
     }
 
     public PlaywrightAdministrationPage selectPopUpMenuItem(String menuItem) {

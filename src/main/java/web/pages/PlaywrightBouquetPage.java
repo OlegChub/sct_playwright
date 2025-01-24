@@ -3,17 +3,11 @@ package web.pages;
 import com.microsoft.playwright.Locator;
 import com.microsoft.playwright.Page;
 import lombok.SneakyThrows;
-import org.openqa.selenium.By;
-import org.openqa.selenium.WebElement;
-import org.openqa.selenium.support.ui.Select;
-import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Component;
 import utils.Utils;
 
 import java.nio.file.Path;
 import java.util.List;
-import java.util.Locale;
-import java.util.stream.Collectors;
 
 import static java.lang.Thread.sleep;
 
@@ -71,6 +65,61 @@ public class PlaywrightBouquetPage {
         return page.locator("//input[contains(@name,'PROP[43]')]");
     }
 
+    public Locator getBouquetHeightInput() {
+        return page.locator("//input[contains(@name,'PROP[65]')]");
+    }
+
+    public PlaywrightBouquetPage setBouquetHeight(String value) {
+        Locator bouquetHeightInput = getBouquetHeightInput();
+        bouquetHeightInput.clear();
+        bouquetHeightInput.fill(value);
+        return this;
+    }
+
+    public Locator getBouquetLengthInput() {
+        return page.locator("//input[contains(@name,'PROP[66]')]");
+    }
+
+    public PlaywrightBouquetPage setBouquetLength(String value) {
+        Locator bouquetLengthInput = getBouquetLengthInput();
+        bouquetLengthInput.clear();
+        bouquetLengthInput.fill(value);
+        return this;
+    }
+
+    public Locator getBouquetWidthInput() {
+        return page.locator("//input[contains(@name,'PROP[71]')]");
+    }
+
+    public PlaywrightBouquetPage setBouquetWidth(String value) {
+        Locator bouquetWidthInput = getBouquetWidthInput();
+        bouquetWidthInput.clear();
+        bouquetWidthInput.fill(value);
+        return this;
+    }
+
+    public Locator getBouquetWeightInput() {
+        return page.locator("//input[contains(@name,'PROP[185]')]");
+    }
+
+    public PlaywrightBouquetPage setBouquetWeight(String value) {
+        Locator bouquetWeightInput = getBouquetWeightInput();
+        bouquetWeightInput.clear();
+        bouquetWeightInput.fill(value);
+        return this;
+    }
+
+    public Locator getBouquetAssemblyTimeInput() {
+        return page.locator("//input[contains(@name,'PROP[232]')]");
+    }
+
+    public PlaywrightBouquetPage setBouquetAssemblyTime(String value) {
+        Locator bouquetAssemblyTimeInput = getBouquetAssemblyTimeInput();
+        bouquetAssemblyTimeInput.clear();
+        bouquetAssemblyTimeInput.fill(value);
+        return this;
+    }
+
     public PlaywrightBouquetPage setAlternativeCompositionItem(String itemName) {
         page.locator(alternativeCompositionItemInput).clear();
         page.locator(alternativeCompositionItemInput).fill(itemName);
@@ -125,7 +174,7 @@ public class PlaywrightBouquetPage {
     }
 
     public PlaywrightBouquetPage setDefaultGoodsQuantity() {
-        String quantityInput ="//input[@id='CAT_BASE_QUANTITY']";
+        String quantityInput = "//input[@id='CAT_BASE_QUANTITY']";
         page.locator(quantityInput).clear();
         page.locator(quantityInput).fill(String.valueOf(999));
         return this;
