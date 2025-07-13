@@ -1,13 +1,10 @@
 import com.config.SctApplication;
 import com.microsoft.playwright.Page;
-import lombok.SneakyThrows;
 import org.junit.jupiter.api.DisplayName;
 import org.junit.jupiter.api.Test;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.test.context.SpringBootTest;
 import web.pages.ya.*;
-
-import static java.lang.Thread.sleep;
 
 @SpringBootTest(classes = {SctApplication.class})
 public class UpdateSCTShopsOnYaMaps {
@@ -31,12 +28,11 @@ public class UpdateSCTShopsOnYaMaps {
     private GoodsAndServicesPage goodsAndServicesPage;
 
     @Test
-    @SneakyThrows
     @DisplayName("Make shops price lists actual")
     public void updatePriceListOfSCTBranchesOnYaMaps() {
         sctBranchesPage.openOrgBranchesPage();
         yandexIDLoginPage.loginWithYaID();
-        sleep(10000);
+        page.waitForTimeout(10000);
         int pageCount = sctBranchesPage.getPaginationBtns().count();
         System.out.printf("Page total count: %d\n", pageCount);
         int shopCount = 1;

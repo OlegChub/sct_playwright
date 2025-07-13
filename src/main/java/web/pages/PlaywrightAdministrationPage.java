@@ -83,9 +83,14 @@ public class PlaywrightAdministrationPage {
         return this;
     }
 
+    public PlaywrightAdministrationPage pressEnterOnSearchField() {
+        page.locator(searchField).press("Enter");
+        return this;
+    }
+
     @SneakyThrows
     public PlaywrightAdministrationPage clickSearchBtn() {
-        page.locator("//span[@class='main-ui-item-icon main-ui-search']").click();
+        page.locator("//span[@class='main-ui-item-icon main-ui-search']"). click();
         this.page.waitForLoadState();
         return this;
     }
@@ -187,8 +192,35 @@ public class PlaywrightAdministrationPage {
     }
 
     public PlaywrightAdministrationPage checkAll() {
-//        page.locator(flowersH1).scrollIntoViewIfNeeded();
         page.locator("//input[@type='checkbox' and contains(@title, 'Отметить все')]").first().click();
+        return this;
+    }
+
+    public PlaywrightAdministrationPage selectProductWithName(String productName) {
+        page.locator(format("//a[text()='%s']/ancestor::tr[contains(@class,'main-grid-row-body')]", productName)).click();
+        return this;
+    }
+
+    public PlaywrightAdministrationPage clickOnActionsBtn() {
+        System.out.println("Click on Actions btn");
+        page.locator("//span[contains(@id,'base_action_select_tbl_iblock')]").first().click();
+        return this;
+    }
+
+    public PlaywrightAdministrationPage selectAction(String actionName) {
+        System.out.println("Select action: " + actionName);
+        page.getByText(actionName).click();
+        return this;
+    }
+
+    public PlaywrightAdministrationPage clickOnSectionsBtn() {
+        page.locator("//span[contains(@id,'iblock_grid_action_tbl_iblock_element')]").click();
+        return this;
+    }
+
+    public PlaywrightAdministrationPage selectSection(String sectionName) {
+        System.out.println("Select section: " + sectionName);
+        page.getByText(sectionName).click();
         return this;
     }
 
@@ -214,6 +246,7 @@ public class PlaywrightAdministrationPage {
 
     public PlaywrightAdministrationPage clickOnApplyBtn() {
         page.locator("//button[@id='apply_button_control']").click();
+        System.out.println("Applying changes...");
         return this;
     }
 
@@ -234,6 +267,14 @@ public class PlaywrightAdministrationPage {
     public PlaywrightAdministrationPage editCheckedItems() {
         page.locator("#grid_edit_button_control").click();
         System.out.println("Editing mode ON");
+        return this;
+    }
+
+    public PlaywrightAdministrationPage replaceComposition(String oldId, String newId) {
+        var locatorPattern = "//td//input[contains(@name,'PROPERTY_217') and @value='%s']";
+        page.locator(format(locatorPattern,oldId)).clear();
+        page.locator(format(locatorPattern,oldId)).fill(newId);
+        System.out.println("Substituting component ID");
         return this;
     }
 

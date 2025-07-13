@@ -14,8 +14,8 @@ import static java.lang.Thread.sleep;
 
 @Component
 public class PlaywrightBouquetPage {
-    private final Page page;
 
+    private final Page page;
     private final String activityCheckbox = "//input[@name='ACTIVE' and @type='checkbox']";
     private final String alternativeCompositionItemInput = "//input[contains(@name,'PROP[43]')]";
     private final String compositionItemCode = "//input[contains(@id,'PROP[217]') and contains(@name,'VALUE')]";
@@ -177,6 +177,13 @@ public class PlaywrightBouquetPage {
         String quantityInput = "//input[@id='CAT_BASE_QUANTITY']";
         page.locator(quantityInput).clear();
         page.locator(quantityInput).fill(String.valueOf(999));
+        return this;
+    }
+
+    public PlaywrightBouquetPage setGoodsPrice(String price) {
+        String quantityInput = "//input[@id='CAT_BASE_PRICE']";
+        page.locator(quantityInput).clear();
+        page.locator(quantityInput).fill(price);
         return this;
     }
 

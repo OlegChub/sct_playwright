@@ -1,6 +1,7 @@
 package utils;
 
-import entities.*;
+import entities.Element;
+import entities.Item;
 import helper.CompositionIdentifier;
 import lombok.SneakyThrows;
 import lombok.experimental.UtilityClass;
@@ -8,7 +9,12 @@ import org.apache.poi.ss.usermodel.*;
 import org.apache.poi.xssf.usermodel.XSSFWorkbook;
 
 import java.io.*;
-import java.util.*;
+import java.util.ArrayList;
+import java.util.HashMap;
+import java.util.List;
+import java.util.Map;
+
+import static constants.Constants.SCT_PATH;
 
 @UtilityClass
 public class FileUtils {
@@ -36,8 +42,7 @@ public class FileUtils {
     public List<Item> readExcelAndMatchCompositionsWithStemsCSV(String excelFilePath) {
         List<Item> items = new ArrayList<>();
         Item currentItem = null;
-//        String filePath = "..\\sct\\src\\main\\resources\\files\\stems.csv"; // Path to CSV file with stems
-        String filePath = "C:\\Users\\Selecty\\Downloads\\sct\\stemsLocal.csv"; // Path to CSV file with stems
+        String filePath = SCT_PATH + "stemsLocal.csv"; // Path to CSV file with stems
         List<String> stems = FileUtils.readCsv(filePath);
 
         FileInputStream fis = new FileInputStream(new File(excelFilePath));
@@ -98,7 +103,7 @@ public class FileUtils {
         Sheet sheet = workbook.getSheetAt(0); // Get the first sheet
         for (Row row : sheet) {
             Cell elementItemName = row.getCell(startCell);
-            Cell elementItemQuantity = row.getCell(startCell+1);
+            Cell elementItemQuantity = row.getCell(startCell + 1);
             if (elementItemName != null && elementItemName.getCellType() != CellType.BLANK) {
                 String name = elementItemName.getStringCellValue().trim();
 //                int quantity = (int) elementItemQuantity.getNumericCellValue();
@@ -106,7 +111,22 @@ public class FileUtils {
                 items.put(name, quantity);
             }
         }
+        return items;
+    }
 
+    @SneakyThrows
+    public List<String> readOneColumnOfExcelFile(int startCell, String excelFilePath) {
+        List<String> items = new ArrayList<>();
+        FileInputStream fis = new FileInputStream(new File(excelFilePath));
+        Workbook workbook = new XSSFWorkbook(fis);
+        Sheet sheet = workbook.getSheetAt(0); // Get the first sheet
+        for (Row row : sheet) {
+            Cell elementItemName = row.getCell(startCell);
+            if (elementItemName != null && elementItemName.getCellType() != CellType.BLANK) {
+                String name = getCellValueAsString(elementItemName).replace(".0", "");
+                items.add(name);
+            }
+        }
         return items;
     }
 

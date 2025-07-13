@@ -55,7 +55,7 @@ public class CompositionIdentifier {
 
     public String correctCompositionSpelling(String compositionName) {
         String newCompositionName = compositionName.toLowerCase();
-         if (newCompositionName.contains(" микс") && !newCompositionName.contains("роза")) {
+        if (newCompositionName.contains(" микс") && !newCompositionName.contains("роза")) {
             newCompositionName = newCompositionName.replace("микс", "");
         }
         if (newCompositionName.contains("голландия") && !newCompositionName.contains("роза")) {
@@ -64,6 +64,19 @@ public class CompositionIdentifier {
         }
         if (newCompositionName.contains("*")) {
             newCompositionName = newCompositionName.replace("*", "х");
+        } else if (newCompositionName.contains("роза ")) {
+            if (newCompositionName.contains("роза ") && newCompositionName.contains(" 4 ")) {
+                newCompositionName = newCompositionName.replace(" 4 ", " 40 ");
+            } else if (newCompositionName.contains("роза ") && newCompositionName.contains(" 5 ")) {
+                newCompositionName = newCompositionName.replace(" 5 ", " 50 ");
+            } else if (newCompositionName.contains("роза ") && newCompositionName.contains(" 6 ")) {
+                newCompositionName = newCompositionName.replace(" 6 ", " 60 ");
+            } else if (newCompositionName.contains("роза ") && newCompositionName.contains(" 7 ")) {
+                newCompositionName = newCompositionName.replace(" 7 ", " 70 ");
+            }
+            if (newCompositionName.contains("спрей")) {
+                newCompositionName = newCompositionName.replace("спрей", "кустовая");
+            }
         } else if (newCompositionName.contains("спрей")) {
             newCompositionName = newCompositionName.replace("спрей", "кустовая");
         } else if (newCompositionName.contains("матиола")) {
@@ -92,14 +105,6 @@ public class CompositionIdentifier {
             } else {
                 newCompositionName = newCompositionName.replace(" нг", " новогодний");
             }
-        } else if (newCompositionName.contains("роза ") && newCompositionName.contains(" 4 ")) {
-            newCompositionName = newCompositionName.replace(" 4 ", " 40 ");
-        } else if (newCompositionName.contains("роза ") && newCompositionName.contains(" 5 ")) {
-            newCompositionName = newCompositionName.replace(" 5 ", " 50 ");
-        } else if (newCompositionName.contains("роза ") && newCompositionName.contains(" 6 ")) {
-            newCompositionName = newCompositionName.replace(" 6 ", " 60 ");
-        } else if (newCompositionName.contains("роза ") && newCompositionName.contains(" 7 ")) {
-            newCompositionName = newCompositionName.replace(" 7 ", " 70 ");
         }
         return newCompositionName;
     }

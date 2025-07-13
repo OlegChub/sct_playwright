@@ -41,6 +41,7 @@ public class BranchPage {
 
     public BranchPage clickOnSaveChangesBtn() {
         getBtnWithName("Сохранить изменения").click();
+        System.out.println("Saving changes..");
         return this;
     }
 

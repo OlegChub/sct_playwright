@@ -1,7 +1,6 @@
 import com.config.SctApplication;
 import com.microsoft.playwright.Locator;
 import com.microsoft.playwright.Page;
-import lombok.SneakyThrows;
 import org.junit.jupiter.api.DisplayName;
 import org.junit.jupiter.api.Test;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -12,7 +11,6 @@ import web.pages.ya.SCTBranchesPage;
 import web.pages.ya.YandexIDLoginPage;
 
 import static enums.NewScheduleDates.*;
-import static java.lang.Thread.sleep;
 
 @SpringBootTest(classes = {SctApplication.class})
 public class AddBranchesHolidaySchedule {
@@ -34,7 +32,6 @@ public class AddBranchesHolidaySchedule {
     private HolidaysAndDaysOffPopUp holidaysAndDaysOffPopUp;
 
     @Test
-    @SneakyThrows
     @DisplayName("Add new opening hours")
     public void updateSCTShopsOnYaMaps() {
         String morningTime = "10:00";
@@ -43,7 +40,7 @@ public class AddBranchesHolidaySchedule {
 
         sctBranchesPage.openOrgBranchesPage();
         yandexIDLoginPage.loginWithYaID();
-        sleep(20000);
+        page.waitForTimeout(20000);
         sctBranchesPage.openOrgBranchesPage();
         int pageCount = sctBranchesPage.getPaginationBtns().count();
         System.out.printf("Page total count: %d\n", pageCount);
@@ -61,7 +58,7 @@ public class AddBranchesHolidaySchedule {
                 var branchOpeningHours = branchPage.getBranchOpeningHours();
                 System.out.printf("Opening hours: %s\n", branchOpeningHours);
                 branchPage.clickOnShowAllDaysOffBtn();
-//                sleep(3000);
+//                page.waitForTimeout(3000);
                 int counter;
                 if (branchOpeningHours.contains("круглосуточно")) {
                     counter = 3;
@@ -94,6 +91,71 @@ public class AddBranchesHolidaySchedule {
                     fillOutDateInput(dateInputs, 5, JAN_05.getDate());
                     fillOutTimeInput(openFromInputs, openTillInputs, 5, morningTime, eveningTime);
                 }
+                holidaysAndDaysOffPopUp.clickOnCloseIcon();
+                branchPage.clickOnSaveChangesBtn();
+                shopCount++;
+            }
+            sctBranchesPage.openOrgBranchesPageWithPageNumber(pagination);
+            pagination++;
+        }
+    }
+
+    @Test
+    @DisplayName("Add new opening hours")
+    public void updateSCTShopsOpeningHoursOnYaMaps() {
+        String morningTime = "07:00";
+        String midnightTime = "00:00";
+        int daysQuantityToBeAdded = 2;
+
+        sctBranchesPage.openOrgBranchesPage();
+        yandexIDLoginPage.loginWithYaID();
+        page.waitForTimeout(20000);
+        sctBranchesPage.openOrgBranchesPage();
+        int pageCount = sctBranchesPage.getPaginationBtns().count();
+        System.out.printf("Page total count: %d\n", pageCount);
+        int shopCount = 1;
+        int pagination = 2;
+        while (pageCount-- >= 0) {
+            var branchesEndpoints = sctBranchesPage.getAllBranchEndpointsFromPage();
+            System.out.printf("Total endpoints count: %d\n", branchesEndpoints.size());
+            for (var branchEndpoint : branchesEndpoints) {
+                page.navigate(" https://yandex.ru" + branchEndpoint);
+                branchPage.assertBranchPageLoaded();
+                if (branchPage.isEnableNotificationPopUpVisible()) branchPage.closeEnableNotificationPopUp();
+
+                System.out.printf("%d. Shop address: %s\n", shopCount, branchPage.getBranchAddress());
+                var branchOpeningHours = branchPage.getBranchOpeningHours();
+                System.out.printf("Opening hours: %s\n", branchOpeningHours);
+                page.waitForTimeout(2000);
+                if (branchOpeningHours.contains("круглосуточно")) {
+                    shopCount++;
+                    System.out.println("Skipping opening hours editing");
+                    continue;
+                }
+                branchPage.clickOnShowAllDaysOffBtn();
+                for (int i = daysQuantityToBeAdded; i > 0; i--) {
+                    holidaysAndDaysOffPopUp.clickOnAddNewDayBtn();
+//                    page.waitForTimeout(500);
+                }
+
+                Locator dateInputs = holidaysAndDaysOffPopUp.getDateInputs();
+                int dateInputsCount = holidaysAndDaysOffPopUp.getDateInputs().count();
+                Locator openFromInputs = holidaysAndDaysOffPopUp.getOpenFromInputs();
+                int openFromInputsCount = holidaysAndDaysOffPopUp.getOpenFromInputs().count();
+                Locator openTillInputs = holidaysAndDaysOffPopUp.getOpenTillInputs();
+                int openTillInputsCount = holidaysAndDaysOffPopUp.getOpenTillInputs().count();
+
+                System.out.println("Setting new opening hours for " + MAR_07.getDate());
+                fillOutDateInput(dateInputs, dateInputsCount - 2, MAR_07.getDate());
+                openFromInputs.nth(openFromInputsCount - 2).fill(morningTime);
+                openTillInputs.nth(openTillInputsCount - 2).fill(midnightTime);
+
+                System.out.println("Setting new opening hours for " + MAR_08.getDate());
+                fillOutDateInput(dateInputs, dateInputsCount - 1, MAR_08.getDate());
+                openFromInputs.nth(openFromInputsCount - 1).fill(morningTime);
+                openTillInputs.nth(openTillInputsCount - 1).fill(midnightTime);
+                page.waitForTimeout(2000);
+
                 holidaysAndDaysOffPopUp.clickOnCloseIcon();
                 branchPage.clickOnSaveChangesBtn();
                 shopCount++;
