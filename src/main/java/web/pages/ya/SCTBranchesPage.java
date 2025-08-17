@@ -2,7 +2,6 @@ package web.pages.ya;
 
 import com.microsoft.playwright.Locator;
 import com.microsoft.playwright.Page;
-import org.openqa.selenium.WebElement;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.stereotype.Component;
 
@@ -70,10 +69,6 @@ public class SCTBranchesPage {
             list.add(href);
         }
         return list;
-    }
-
-    public List<String> getHrefAttributes(List<WebElement> list) {
-        return list.stream().map(el -> el.getAttribute("href")).collect(Collectors.toList());
     }
 
     public SCTBranchesPage clickOnNextPageBtn() {
