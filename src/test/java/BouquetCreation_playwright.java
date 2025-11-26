@@ -9,10 +9,12 @@ import org.junit.jupiter.api.AfterEach;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.DisplayName;
 import org.junit.jupiter.api.Test;
+import org.junit.jupiter.api.extension.ExtendWith;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.test.context.SpringBootTest;
 import utils.Exporter;
 import utils.FileUtils;
+import web.listeners.ScreenshotOnFailureExtension;
 import web.pages.PlaywrightAdminLoginPage;
 import web.pages.PlaywrightAdministrationPage;
 import web.pages.PlaywrightBouquetPage;
@@ -30,6 +32,7 @@ import static constants.Constants.SCT_PATH;
 import static java.lang.String.format;
 
 @SpringBootTest(classes = {SctApplication.class})
+@ExtendWith(ScreenshotOnFailureExtension.class) // Register the extension
 public class BouquetCreation_playwright {
 
     @Autowired
