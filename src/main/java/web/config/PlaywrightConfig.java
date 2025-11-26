@@ -2,8 +2,10 @@ package web.config;
 
 import com.microsoft.playwright.*;
 import org.springframework.beans.factory.annotation.Value;
+import org.springframework.beans.factory.config.ConfigurableBeanFactory;
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
+import org.springframework.context.annotation.Scope;
 
 @Configuration
 public class PlaywrightConfig {
@@ -16,7 +18,7 @@ public class PlaywrightConfig {
         return Playwright.create();
     }
 
-    @Bean
+    @Bean(destroyMethod = "close")
     public Browser browser(Playwright playwright) {
         switch (browser) {
             case "firefox":
@@ -29,12 +31,14 @@ public class PlaywrightConfig {
         }
     }
 
-    @Bean
+    @Bean(destroyMethod = "close")
+    @Scope(ConfigurableBeanFactory.SCOPE_SINGLETON)
     public BrowserContext browserContext(Browser browser) {
         return browser.newContext();
     }
 
-    @Bean
+    @Bean(destroyMethod = "close")
+    @Scope(ConfigurableBeanFactory.SCOPE_SINGLETON)
     public Page page(BrowserContext browserContext) {
         return browserContext.newPage();
     }
