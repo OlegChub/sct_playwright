@@ -84,4 +84,15 @@ public class SCTBranchesPage {
         page.waitForLoadState();
         return page.locator("//span[not(text()='Вперед')]/ancestor::button[@class='Button2 Pagination-Button']");
     }
+
+    public List<String> getPaginationNumbers() {
+        page.waitForLoadState();
+        Locator elements =  page.locator("//span[contains(@class,'Pagination-Link') and not(contains(@class,'Pagination-Link_type_text'))]");
+        List<String> pageNumbers = new ArrayList<>();
+        for (int i = 0; i < elements.count(); i++) {
+            String pageNumber = elements.nth(i).textContent();
+            pageNumbers.add(pageNumber);
+        }
+        return pageNumbers;
+    }
 }
