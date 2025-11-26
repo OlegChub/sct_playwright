@@ -2,55 +2,53 @@ package web.pages;
 
 import com.microsoft.playwright.Page;
 import com.microsoft.playwright.options.LoadState;
+import lombok.extern.slf4j.Slf4j;
 import org.springframework.stereotype.Component;
 
 import static java.lang.String.format;
 
-
+@Slf4j
 @Component
-public class PlaywrightSearchElementPage {
-
-    private final Page page;
+public class PlaywrightSearchElementPage extends BasePage {
 
     public PlaywrightSearchElementPage(Page page) {
-        this.page = page;
+        super.page = page;
     }
 
     public PlaywrightSearchElementPage findElementById(String elementId) {
         String startId = "//input[@name='filter_id_start']";
         String endId = "//input[@name='filter_id_end']";
         System.out.printf("Using element id: %s%n", elementId);
-        page.locator(startId).clear();
-        page.locator(startId).fill(elementId);
-        page.locator(endId).clear();
-        page.locator(endId).fill(elementId);
-        page.locator("//input[@value='Найти']").click();
+        log.info("Using element id: {}%n", elementId);
+        clearFieldAndFillText(startId, elementId);
+        clearFieldAndFillText(endId, elementId);
+        clickOnElement("//input[@value='Найти']");
         return this;
     }
 
     public PlaywrightSearchElementPage findElementByName(String name) {
         String nameInput = "//input[@name='filter_name']";
-        page.locator(nameInput).clear();
-        page.locator(nameInput).fill(name);
-        page.locator("//input[@value='Найти']").click();
+        clearFieldAndFillText(nameInput, name);
+        clickOnElement("//input[@value='Найти']");
         System.out.printf("... Searching for element: %s%n", name);
+        log.info("... Searching for element: {}%n", name);
         return this;
     }
 
     public PlaywrightSearchElementPage selectFoundedElement() {
-        page.locator("//input[@value='Выбрать']").click();
+        clickOnElement("//input[@value='Выбрать']");
         System.out.println("Element has been selected");
         return this;
     }
 
     public PlaywrightSearchElementPage selectFirstElementUsingDoubleClick() {
-        page.locator("(//tr[@class='adm-list-table-row'])[1]").dblclick();
+        doubleClickOnElement("(//tr[@class='adm-list-table-row'])[1]");
         System.out.println("First element has been selected");
         return this;
     }
 
     public PlaywrightSearchElementPage selectElementWithNameUsingDoubleClick(String elementName) {
-        page.locator(format("(//td[text()='%s'])", elementName)).first().dblclick();
+        doubleClickOnFirstElement(format("(//td[text()='%s'])", elementName));
         System.out.printf("%s has been selected\n", elementName);
         return this;
     }
@@ -60,8 +58,13 @@ public class PlaywrightSearchElementPage {
             // Interact with the new page
             newPage.waitForLoadState(LoadState.DOMCONTENTLOADED);
             System.out.println("Title of New Page: " + newPage.title());// Wait for the new page to load
-            PlaywrightSearchElementPage searchElementPage1 = new PlaywrightSearchElementPage(newPage);
+//            PlaywrightSearchElementPage searchElementPage1 = new PlaywrightSearchElementPage(newPage);
             newPage.close();
         });
+    }
+
+    @Override
+    protected String getPageUrl() {
+        return "";
     }
 }

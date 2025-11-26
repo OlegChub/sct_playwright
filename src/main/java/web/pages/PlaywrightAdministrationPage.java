@@ -1,20 +1,19 @@
 package web.pages;
 
 import com.microsoft.playwright.Locator;
-import com.microsoft.playwright.Page;
 import lombok.SneakyThrows;
+import lombok.extern.slf4j.Slf4j;
 import org.springframework.stereotype.Component;
 
 import java.util.List;
 
 import static com.microsoft.playwright.options.LoadState.DOMCONTENTLOADED;
 import static java.lang.String.format;
-import static java.lang.Thread.sleep;
 
 
 @Component
-public class PlaywrightAdministrationPage {
-    private final Page page;
+@Slf4j
+public class PlaywrightAdministrationPage extends BasePage {
 
     private static final String ADMIN_HEADER_BTN = "//a[text()='Администрирование']";
     private static final String searchField = "input[name='FIND']";
@@ -27,27 +26,23 @@ public class PlaywrightAdministrationPage {
     private static final String bouquetAssemblyTimeField = "(//span[@class='main-grid-cell-content']/a[text()='%s']/ancestor::tr)[2]//input[contains(@name,'[PROPERTY_232]')]";
     private static final String errorWhileSavingPopUp = "//div[contains(@id,'popup-window-content')]//div[contains(text(),'Ошибка сохранения записи')]";
 
-    public PlaywrightAdministrationPage(Page page) {
-        this.page = page;
-    }
-
     public PlaywrightAdministrationPage openAdministrationPage() {
-        page.navigate(URL);
+        navigateTo(URL);
         return this;
     }
 
     public PlaywrightAdministrationPage openNewCollectionSection() {
-        page.navigate(NEW_COLLECTION_URL);
+        navigateTo(NEW_COLLECTION_URL);
         return this;
     }
 
     public PlaywrightAdministrationPage openCatalogSection() {
-        page.navigate(CATALOG_URL);
+        navigateTo(CATALOG_URL);
         return this;
     }
 
     public PlaywrightAdministrationPage openFlowersSection() {
-        if (page.title().equals(ADMIN_PAGE_TITLE)) {
+        if (getPageTitle().equals(ADMIN_PAGE_TITLE)) {
             this.clickOnFlowersSubMenuWithText("Цветы");
             page.waitForLoadState();
         } else {
@@ -57,120 +52,122 @@ public class PlaywrightAdministrationPage {
     }
 
     public PlaywrightAdministrationPage assertAdministrationPageIsDisplayed() {
-        page.locator(ADMIN_HEADER_BTN).isVisible();
+        isElementVisible(ADMIN_HEADER_BTN);
         return this;
     }
 
     public boolean assertFlowersSectionIsDisplayed() {
-        return page.locator(flowersH1).isVisible();
+        return isElementVisible(flowersH1);
     }
 
     public PlaywrightAdministrationPage clickOnLeftMenuItemWithText(String text) {
-        page.locator(format("//div[@class='adm-main-menu-item-text' and text()='%s']/ancestor::span", text)).click();
+        clickOnElement(format("//div[@class='adm-main-menu-item-text' and text()='%s']/ancestor::span", text));
         return this;
     }
 
     public PlaywrightAdministrationPage clickOnFlowersSubMenuWithText(String text) {
-        page.locator(format("//div[@id='_global_menu_desktop']//span[text()='%s']", text)).click();
+        clickOnElement(format("//div[@id='_global_menu_desktop']//span[text()='%s']", text));
         System.out.printf("Clicking on flowers submenu: %s\n", text);
+        log.info("Clicking on flowers submenu: {} \n", text);
         return this;
     }
 
     public PlaywrightAdministrationPage searchItemByName(String searchText) {
-        page.locator(searchField).clear();
-        page.locator(searchField).fill(searchText);
+        clearFieldAndFillText(searchField, searchText);
         System.out.printf("...Searching for %s%n", searchText);
+        log.info("...Searching for {} %n", searchText);
         return this;
     }
 
     public PlaywrightAdministrationPage pressEnterOnSearchField() {
-        page.locator(searchField).press("Enter");
+        pressKey(searchField, "Enter");
         return this;
     }
 
     @SneakyThrows
     public PlaywrightAdministrationPage clickSearchBtn() {
-        page.locator("//span[@class='main-ui-item-icon main-ui-search']"). click();
-        this.page.waitForLoadState();
+        clickOnElement("//span[@class='main-ui-item-icon main-ui-search']");
         return this;
     }
 
     public String getSearchResultsQuantity() {
         String totalItemsFound = "//span[contains(text(),'Всего:')]/following-sibling::span[contains(@class,'content-text')]";
         System.out.println("Items found: " + totalItemsFound);
+        log.info("Items found: {}", totalItemsFound);
         return page.textContent(totalItemsFound);
     }
 
     public PlaywrightAdministrationPage assertSearchResultDisplayed(String name) {
-        page.locator((format("(//a[@title='Перейти к редактированию' and contains(text(),'%s')])[1]", name))).isVisible();
+        isElementVisible(format("(//a[@title='Перейти к редактированию' and contains(text(),'%s')])[1]", name));
         System.out.println("Result is displayed");
+        log.info("Result is displayed");
         return this;
     }
 
     public PlaywrightAdministrationPage searchByAlternativeCompositionItem(String itemName) {
-        page.locator(searchField).click();
+        clickOnElement(searchField);
         String input = "input[name='PROPERTY_43']";
-        page.locator(input).clear();
-        page.locator(input).fill(itemName);
-        page.locator("//button[contains(@class,'main-ui-filter-find')]").click();
+        clearFieldAndFillText(input, itemName);
+        clickOnElement("//button[contains(@class,'main-ui-filter-find')]");
         System.out.printf("...Searching for %s%n", itemName);
+        log.info("...Searching for {}%n", itemName);
         return this;
     }
 
     public PlaywrightAdministrationPage searchBySymbolicCode(String itemName) {
-        page.locator(searchField).click();
+        clickOnElement(searchField);
         String input = "input[name='CODE']";
-        page.locator(input).clear();
-        page.locator(input).fill(itemName);
-        page.locator("//button[contains(@class,'main-ui-filter-find')]").click();
+        clearFieldAndFillText(input, itemName);
+        clickOnElement("//button[contains(@class,'main-ui-filter-find')]");
         System.out.printf("...Searching for %s%n", itemName);
+        log.info("...Searching for {}%n", itemName);
         return this;
     }
 
     public Locator getCompositionCodeInputs() {
-        return page.locator("//input[contains(@id,'[PROPERTY_217][n0]')]");
+        return getLocator("//input[contains(@id,'[PROPERTY_217][n0]')]");
 
     }
 
     public Locator getCompositionQuantityInputs() {
-        return page.locator("//input[contains(@name,'[PROPERTY_217][n0][DESCRIPTION]')]");
+        return getLocator("//input[contains(@name,'[PROPERTY_217][n0][DESCRIPTION]')]");
     }
 
     public Locator getAltCompositionNameInputs() {
-        return page.locator("//input[contains(@name,'[PROPERTY_43][n0][VALUE]')]");
+        return getLocator("//input[contains(@name,'[PROPERTY_43][n0][VALUE]')]");
     }
 
     public Locator getNextPaginationNumbers() {
-        return page.locator("//a[@class='main-ui-pagination-page']");
+        return getLocator("//a[@class='main-ui-pagination-page']");
     }
 
     public PlaywrightAdministrationPage clickOnPaginationPageWithNumber(int num) {
-        page.locator("//a[@class='main-ui-pagination-page']").scrollIntoViewIfNeeded();
-        page.locator(format("(//a[@class='main-ui-pagination-page'])[%d]", num)).click();
+        getLocator("//a[@class='main-ui-pagination-page']").scrollIntoViewIfNeeded();
+        clickOnElement(format("(//a[@class='main-ui-pagination-page'])[%d]", num));
         return this;
     }
 
     public PlaywrightAdministrationPage clickOnPaginationNext() {
         page.locator("//a[@class='main-ui-pagination-page']").scrollIntoViewIfNeeded();
-        page.locator("//a[contains(@class,'main-ui-pagination-next')]").click();
+        clickOnElement("//a[contains(@class,'main-ui-pagination-next')]");
         return this;
     }
 
     public int getCurrentPageNumber() {
         page.locator("//a[@class='main-ui-pagination-page']").scrollIntoViewIfNeeded();
-        String currentPageNumber = page.locator("//span[contains(@class,'main-ui-pagination-active')]").textContent();
+        String currentPageNumber = getLocator("//span[contains(@class,'main-ui-pagination-active')]").textContent();
         return Integer.parseInt(currentPageNumber);
     }
 
     public int getTotalPageNumber() {
-        var paginationList = page.locator("//a[@class='main-ui-pagination-page']");
+        var paginationList = getLocator("//a[@class='main-ui-pagination-page']");
         var paginationListSize = paginationList.count();
         String pagTotalNumber = paginationList.nth(paginationListSize - 1).textContent();
         return Integer.parseInt(pagTotalNumber);
     }
 
     public PlaywrightAdministrationPage selectItem() {
-        page.locator("//tr[contains(@title,'Двойной щелчок - Редактировать элемент')]").click();
+        clickOnElement("//tr[contains(@title,'Двойной щелчок - Редактировать элемент')]");
         return this;
     }
 
@@ -179,142 +176,143 @@ public class PlaywrightAdministrationPage {
     }
 
     public Locator getNameWebElementsList() {
-        return page.locator(
-                "//td[4]//span[@class='main-grid-cell-content']/a[@title='Перейти к редактированию']");
+        return getLocator("//td[4]//span[@class='main-grid-cell-content']/a[@title='Перейти к редактированию']");
     }
 
     public Locator getNameInputsList() {
-        return page.locator("#NAME_control");
+        return getLocator("#NAME_control");
     }
 
     public Locator getDescriptionInputsList() {
-        return page.locator("//textarea[contains(@name,'UF_POPULAR_CATEGORY_DESCR')]");
+        return getLocator("//textarea[contains(@name,'UF_POPULAR_CATEGORY_DESCR')]");
     }
 
     public PlaywrightAdministrationPage checkAll() {
-        page.locator("//input[@type='checkbox' and contains(@title, 'Отметить все')]").first().click();
+        getLocator("//input[@type='checkbox' and contains(@title, 'Отметить все')]").first().click();
         return this;
     }
 
     public PlaywrightAdministrationPage selectProductWithName(String productName) {
-        page.locator(format("//a[text()='%s']/ancestor::tr[contains(@class,'main-grid-row-body')]", productName)).click();
+        clickOnElement(format("//a[text()='%s']/ancestor::tr[contains(@class,'main-grid-row-body')]", productName));
         return this;
     }
 
     public PlaywrightAdministrationPage clickOnActionsBtn() {
         System.out.println("Click on Actions btn");
-        page.locator("//span[contains(@id,'base_action_select_tbl_iblock')]").first().click();
+        log.info("Click on Actions btn");
+        clickOnFirstElement("//span[contains(@id,'base_action_select_tbl_iblock')]");
         return this;
     }
 
     public PlaywrightAdministrationPage selectAction(String actionName) {
         System.out.println("Select action: " + actionName);
-        page.getByText(actionName).click();
+        log.info("Select action: {}", actionName);
+        getLocatorByText(actionName).click();
         return this;
     }
 
     public PlaywrightAdministrationPage clickOnSectionsBtn() {
-        page.locator("//span[contains(@id,'iblock_grid_action_tbl_iblock_element')]").click();
+        clickOnElement("//span[contains(@id,'iblock_grid_action_tbl_iblock_element')]");
         return this;
     }
 
     public PlaywrightAdministrationPage selectSection(String sectionName) {
         System.out.println("Select section: " + sectionName);
-        page.getByText(sectionName).click();
+        getLocatorByText(sectionName).click();
         return this;
     }
 
     public PlaywrightAdministrationPage checkItemToEdit() {
-        page.locator("//input[contains(@id,'checkbox') and contains(@title,'Отметить для редактирования')]").click();
+        clickOnElement("//input[contains(@id,'checkbox') and contains(@title,'Отметить для редактирования')]");
         return this;
     }
 
     public PlaywrightAdministrationPage checkItemWithNameToEdit(String itemName) {
-        page.locator(format("(//span[@class='main-grid-cell-content']/a[text()='%s']/ancestor::tr)[2]//input[contains(@id,'checkbox')]", itemName)).click();
+        clickOnElement(format("(//span[@class='main-grid-cell-content']/a[text()='%s']/ancestor::tr)[2]//input[contains(@id,'checkbox')]", itemName));
         return this;
     }
 
     public PlaywrightAdministrationPage clickOnActionDropdown() {
-        page.locator("//span[contains(@id, 'base_action_select') and contains(@class,'main-dropdown')]").click();
+        clickOnElement("//span[contains(@id, 'base_action_select') and contains(@class,'main-dropdown')]");
         return this;
     }
 
     public PlaywrightAdministrationPage clickOnRemoveFromSection() {
-        page.locator("//span[@data-value='asd_remove']").click();
+        clickOnElement("//span[@data-value='asd_remove']");
         return this;
     }
 
     public PlaywrightAdministrationPage clickOnApplyBtn() {
-        page.locator("//button[@id='apply_button_control']").click();
+        clickOnElement("//button[@id='apply_button_control']");
         System.out.println("Applying changes...");
+        log.info("Applying changes...");
         return this;
     }
 
     @SneakyThrows
     public PlaywrightAdministrationPage clickOnSaveButton() {
-        page.locator("#grid_save_button_control").click();
-        this.page.waitForLoadState();
+        clickOnElement("#grid_save_button_control");
         System.out.println("Saving changes...");
-        this.page.waitForLoadState();
+        log.info("Saving changes...");
         return this;
     }
 
     public PlaywrightAdministrationPage clickOnCancelButton() {
-        page.locator("#grid_cancel_button_control").click();
+        clickOnElement("#grid_cancel_button_control");
         return this;
     }
 
     public PlaywrightAdministrationPage editCheckedItems() {
-        page.locator("#grid_edit_button_control").click();
+        clickOnElement("#grid_edit_button_control");
         System.out.println("Editing mode ON");
+        log.info("Editing mode ON");
         return this;
     }
 
     public PlaywrightAdministrationPage replaceComposition(String oldId, String newId) {
         var locatorPattern = "//td//input[contains(@name,'PROPERTY_217') and @value='%s']";
-        page.locator(format(locatorPattern,oldId)).clear();
-        page.locator(format(locatorPattern,oldId)).fill(newId);
+        clearFieldAndFillText(format(locatorPattern, oldId), newId);
         System.out.println("Substituting component ID");
+        log.info("Substituting component ID");
         return this;
     }
 
     public boolean isEditMenuBarDisplayed() {
         System.out.println("Checking Edit button is displayed");
-        return page.locator("main-grid-control-panel-row").isVisible();
+        log.info("Checking Edit button is displayed");
+        return isElementVisible("main-grid-control-panel-row");
     }
 
     public PlaywrightAdministrationPage clickOnEditFirstItemBurgerMenu() {
-        page.locator("//a[@class='main-grid-row-action-button']").click();
+        clickOnElement("//a[@class='main-grid-row-action-button']");
         return this;
     }
 
     public PlaywrightAdministrationPage clickOnBurgerMenuElementWithText(String text) {
-        page.locator(format("//span[@class='menu-popup-item-text' and text()='%s']", text)).click();
+        clickOnElement(format("//span[@class='menu-popup-item-text' and text()='%s']", text));
         return this;
     }
 
     public PlaywrightAdministrationPage copyFirstItem() {
-        page.locator("//a[@class='main-grid-row-action-button']").click();
+        clickOnElement("//a[@class='main-grid-row-action-button']");
         return selectPopUpMenuItem("Копировать");
     }
 
     public PlaywrightAdministrationPage copyElementWithName(String name) {
-        page.locator(format("(//span[@class='main-grid-cell-content']/a[text()='%s']/ancestor::tr)[2]//a[@class='main-grid-row-action-button']", name)).click();
-        page.locator("//span[@class='menu-popup-item-text' and text()='Копировать']").click();
+        clickOnElement(format("(//span[@class='main-grid-cell-content']/a[text()='%s']/ancestor::tr)[2]//a[@class='main-grid-row-action-button']", name));
+        clickOnElement("//span[@class='menu-popup-item-text' and text()='Копировать']");
         return this;
     }
 
     public PlaywrightAdministrationPage setBouquetAssemblyTime(String bouquetName, String data) {
-        page.locator(format(bouquetAssemblyTimeField, bouquetName)).clear();
-        page.locator(format(bouquetAssemblyTimeField, bouquetName)).fill(data);
+        clearFieldAndFillText(bouquetAssemblyTimeField, bouquetName);
         return this;
     }
 
     public PlaywrightAdministrationPage setBouquetAssemblyTime(String data) {
         page.waitForLoadState(DOMCONTENTLOADED);
         String timeField = "//input[contains(@name,'[PROPERTY_232]')]";
-        page.locator(timeField).first().clear();
-        page.locator(timeField).first().fill(data);
+        clearFieldAndFillText(timeField,data);
         System.out.println("Setting assembly time...");
         return this;
     }
@@ -335,22 +333,26 @@ public class PlaywrightAdministrationPage {
     }
 
     public boolean isNothingFoundDisplayed() {
-        return page.locator("//div[text()='Ничего не найдено']").isVisible();
+        return isElementVisible("//div[text()='Ничего не найдено']");
     }
 
     public boolean isLoaderDisplayed() {
-        return page.locator("main-ui-loader main-ui-show").isVisible();
+        return isElementVisible("main-ui-loader main-ui-show");
     }
 
     public PlaywrightAdministrationPage closeErrorWhileSavingPopup() {
-        page.click("//span[text()='Закрыть']");
+        clickOnElement("//span[text()='Закрыть']");
         return this;
     }
 
     public PlaywrightAdministrationPage selectPopUpMenuItem(String menuItem) {
-        page.locator("//a[@class='main-grid-row-action-button']").click();
-        page.locator(format("//span[@class='menu-popup-item-text' and text()='%s']", menuItem)).click();
+        clickOnElement("//a[@class='main-grid-row-action-button']");
+        clickOnElement(format("//span[@class='menu-popup-item-text' and text()='%s']", menuItem));
         return this;
     }
 
+    @Override
+    protected String getPageUrl() {
+        return URL;
+    }
 }

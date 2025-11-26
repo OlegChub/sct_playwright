@@ -1,13 +1,12 @@
 package web.pages;
 
-import com.microsoft.playwright.Page;
-import org.springframework.beans.factory.annotation.Autowired;
+import org.junit.jupiter.api.Assertions;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.stereotype.Component;
 
 
 @Component
-public class PlaywrightAdminLoginPage{
+public class PlaywrightAdminLoginPage extends BasePage {
 
     @Value("${admin.page}")
     private String url;
@@ -18,38 +17,38 @@ public class PlaywrightAdminLoginPage{
     @Value("${admin.pass}")
     private String password;
 
-    private final Page page;
+//    private final Page page;
 
     private static final String USERNAME_INPUT = "input[name='USER_LOGIN']";
     private static final String PASSWORD_INPUT = "input[name='USER_PASSWORD']";
     private static final String SUBMIT_BTN = "input[name='Login']";
 
-    public PlaywrightAdminLoginPage(Page page) {
-        this.page = page;
-    }
+//    public PlaywrightAdminLoginPage(Page page) {
+//        this.page = page;
+//    }
 
     private PlaywrightAdminLoginPage openAdminLoginPage() {
-        page.navigate(url);
+        navigateTo(url);
         return this;
     }
 
     private PlaywrightAdminLoginPage assertAuthFormLoaded() {
-        page.locator("form[name='form_auth']").isVisible();
+        Assertions.assertTrue(isElementVisible("form[name='form_auth']"));
         return this;
     }
 
     private PlaywrightAdminLoginPage insertUserName() {
-        page.locator(USERNAME_INPUT).first().fill(userName);
+        fillFirstTextField(USERNAME_INPUT, userName);
         return this;
     }
 
     private PlaywrightAdminLoginPage insertPassword() {
-        page.locator(PASSWORD_INPUT).first().fill(password);
+        fillFirstTextField(PASSWORD_INPUT, password);
         return this;
     }
 
     private PlaywrightAdminLoginPage submitLogin() {
-        page.locator(SUBMIT_BTN).first().click();
+        clickOnFirstElement(SUBMIT_BTN);
         return this;
     }
 
@@ -57,4 +56,8 @@ public class PlaywrightAdminLoginPage{
         openAdminLoginPage().assertAuthFormLoaded().insertUserName().insertPassword().submitLogin();
     }
 
+    @Override
+    protected String getPageUrl() {
+        return url;
+    }
 }

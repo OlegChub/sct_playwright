@@ -13,12 +13,16 @@ public class PlaywrightConfig {
     @Value("${browser}")
     String browser;
 
+    private final static int VIEWPORT_WIDTH = 1500;
+    private final static int VIEWPORT_HEIGHT = 900;
+
     @Bean
     public Playwright playwright() {
         return Playwright.create();
     }
 
     @Bean(destroyMethod = "close")
+    @Scope(ConfigurableBeanFactory.SCOPE_PROTOTYPE)
     public Browser browser(Playwright playwright) {
         switch (browser) {
             case "firefox":
@@ -32,15 +36,16 @@ public class PlaywrightConfig {
     }
 
     @Bean(destroyMethod = "close")
-    @Scope(ConfigurableBeanFactory.SCOPE_SINGLETON)
+    @Scope(ConfigurableBeanFactory.SCOPE_PROTOTYPE)
     public BrowserContext browserContext(Browser browser) {
         return browser.newContext();
     }
 
     @Bean(destroyMethod = "close")
-    @Scope(ConfigurableBeanFactory.SCOPE_SINGLETON)
     public Page page(BrowserContext browserContext) {
-        return browserContext.newPage();
+        Page page = browserContext.newPage();
+        page.setViewportSize(VIEWPORT_WIDTH, VIEWPORT_HEIGHT);
+        return page;
     }
 }
 

@@ -13,18 +13,13 @@ import static java.lang.Thread.sleep;
 
 
 @Component
-public class PlaywrightBouquetPage {
+public class PlaywrightBouquetPage extends BasePage {
 
-    private final Page page;
     private final String activityCheckbox = "//input[@name='ACTIVE' and @type='checkbox']";
     private final String alternativeCompositionItemInput = "//input[contains(@name,'PROP[43]')]";
     private final String compositionItemCode = "//input[contains(@id,'PROP[217]') and contains(@name,'VALUE')]";
     private final String compositionItemQuantity = "//span[@title='']/input";
     private final String saveInProgressSign = "//div[@class='adm-btn-load-img-green']";
-
-    public PlaywrightBouquetPage(Page page) {
-        this.page = page;
-    }
 
     public PlaywrightBouquetPage assertBouquetPageDisplayed() {
         page.locator("//h1[@id='adm-title' and contains(text(),'Элемент: Добавление')]")
@@ -252,5 +247,10 @@ public class PlaywrightBouquetPage {
 
     public void clickOnCancelBtn() {
         page.locator("//input[@id='dontsave']").click();
+    }
+
+    @Override
+    protected String getPageUrl() {
+        return "";
     }
 }

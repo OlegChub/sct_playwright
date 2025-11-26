@@ -39,9 +39,6 @@ public class BouquetCreation_playwright {
     private PlaywrightAdminLoginPage loginPage;
 
     @Autowired
-    private Browser browser;
-
-    @Autowired
     private Page page;
 
     @Autowired
@@ -50,21 +47,15 @@ public class BouquetCreation_playwright {
     @Autowired
     private PlaywrightBouquetPage bouquetPage;
 
-    @BeforeEach
-    public void init() {
-        page.setViewportSize(1500, 900);
-    }
-
-    @AfterEach
-    public void shutDown() {
-        if (page != null) page.close();
-        if (browser != null) browser.close();
-    }
+//    @BeforeEach
+//    public void init() {
+//        page.setViewportSize(1500, 900);
+//    }
 
     @Test
     @DisplayName("Add new bouquets using composition names")
     public void addNewBouquetUsingCompositionNames_Playwright() {
-        String imagesFolderPath = SCT_PATH + "Июль 10";
+        String imagesFolderPath = SCT_PATH + "Октябрь 25";
         var itemsList = FileUtils.readExcelAndMatchCompositionsWithStemsCSV(COMPOSITION_FILE_PATH);
         loginPage.login();
         administrationPage
@@ -115,7 +106,6 @@ public class BouquetCreation_playwright {
             folderWithImagesStartIndex++;
         }
         page.waitForTimeout(3000);
-        browser.close();
     }
 
     @Test
@@ -162,7 +152,6 @@ public class BouquetCreation_playwright {
             folderWithImagesStartIndex++;
         }
         page.waitForTimeout(3000);
-        browser.close();
     }
 
     @Test
@@ -194,11 +183,9 @@ public class BouquetCreation_playwright {
     }
 
     private void addNewCompositionFieldUsingName(Item item, int elementIndex) {
-        Page popup = page.waitForPopup(() -> {
-            bouquetPage.addCompositionItemInput();
-        });
-        PlaywrightSearchElementPage searchElementPage = new PlaywrightSearchElementPage(popup);
+        Page popup = page.waitForPopup(() -> bouquetPage.addCompositionItemInput());
         popup.waitForLoadState();
+        PlaywrightSearchElementPage searchElementPage = new PlaywrightSearchElementPage(popup);
         String elementName = getElementName(item, elementIndex);
         searchElementPage.findElementByName(elementName);
         searchElementPage.selectElementWithNameUsingDoubleClick(elementName);
