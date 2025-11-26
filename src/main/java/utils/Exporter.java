@@ -4,6 +4,7 @@ import entities.Element;
 import entities.Item;
 import lombok.SneakyThrows;
 import lombok.experimental.UtilityClass;
+import org.apache.poi.ss.usermodel.Cell;
 import org.apache.poi.ss.usermodel.Row;
 import org.apache.poi.ss.usermodel.Sheet;
 import org.apache.poi.ss.usermodel.Workbook;
@@ -11,9 +12,11 @@ import org.apache.poi.xssf.usermodel.XSSFWorkbook;
 
 import java.io.FileOutputStream;
 import java.io.FileWriter;
+import java.io.IOException;
 import java.nio.file.Paths;
 import java.util.List;
 import java.util.Map;
+import java.util.concurrent.atomic.AtomicInteger;
 
 import static java.lang.String.format;
 
@@ -40,6 +43,38 @@ public class Exporter {
             System.out.println("Excel file created successfully at: " + filePath);
         } finally {
             workbook.close();
+        }
+    }
+
+    @SneakyThrows
+    public void exportListsOfListToExcel(List<List<String>> dataList, String fileName) {
+        // Create a Workbook
+        String filePath = Paths.get("./src/main/resources/outputs/" + fileName + ".xlsx").toString();
+        Workbook workbook = new XSSFWorkbook(); // Create a new workbook
+        Sheet sheet = workbook.createSheet("Data"); // Create a new sheet
+        int counter = 1;
+        // Fill the sheet with data from the map
+//        AtomicInteger rowNum = new AtomicInteger(); // Start from the second row
+        for (int rowIndex = 0; rowIndex < dataList.size(); rowIndex++) {
+            Row row = sheet.createRow(rowIndex); // Create a new row
+            List<String> rowData = dataList.get(rowIndex);
+
+            for (int colIndex = 0; colIndex < rowData.size(); colIndex++) {
+                Cell cell = row.createCell(colIndex);
+                cell.setCellValue(rowData.get(colIndex)); // Set the cell value
+            }
+        }
+        // Write the output to a file
+        try (FileOutputStream fileOut = new FileOutputStream(filePath)) {
+            workbook.write(fileOut);
+        } catch (IOException e) {
+            e.printStackTrace(); // Handle exception
+        } finally {
+            try {
+                workbook.close(); // Close the workbook
+            } catch (IOException e) {
+                e.printStackTrace();
+            }
         }
     }
 
