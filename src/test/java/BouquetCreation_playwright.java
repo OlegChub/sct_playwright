@@ -47,11 +47,6 @@ public class BouquetCreation_playwright {
     @Autowired
     private PlaywrightBouquetPage bouquetPage;
 
-//    @BeforeEach
-//    public void init() {
-//        page.setViewportSize(1500, 900);
-//    }
-
     @Test
     @DisplayName("Add new bouquets using composition names")
     public void addNewBouquetUsingCompositionNames_Playwright() {
